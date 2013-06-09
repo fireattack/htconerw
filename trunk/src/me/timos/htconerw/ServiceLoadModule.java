@@ -9,6 +9,8 @@ import java.util.Arrays;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -81,10 +83,27 @@ public class ServiceLoadModule extends IntentService {
 			busybox.setExecutable(true);
 		}
 
+		// check verMargic compared to previous run
+		SharedPreferences preferences = getSharedPreferences(
+				Constant.KEY_SETTING_STORE, MODE_PRIVATE);
+		Editor editor = preferences.edit();
+		String currVerMagic = exec(mFilesDir.toString(), null,
+				"./busybox uname -r").trim();
+		String savedVerMagic = preferences
+				.getString(Constant.KEY_VER_MAGIC, "");
+		if (!savedVerMagic.equals(currVerMagic)) {
+			editor.putString(Constant.KEY_VER_MAGIC, currVerMagic);
+			if (!savedVerMagic.isEmpty()) {
+				showToast(R.string.message_kernel_change, Toast.LENGTH_LONG);
+				editor.remove(Constant.KEY_LOAD_ON_BOOT);
+				editor.apply();
+				return;
+			}
+			editor.apply();
+		}
+
 		// Prepare module
-		byte[] currKernVerMagic = exec(mFilesDir.toString(), null,
-				"./busybox uname -r").trim().getBytes();
-		if (!prepModule(currKernVerMagic)) {
+		if (!prepModule(currVerMagic.getBytes())) {
 			showToast(R.string.message_error, Toast.LENGTH_LONG);
 			return;
 		}
