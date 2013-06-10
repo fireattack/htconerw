@@ -23,6 +23,7 @@ import com.stericson.RootTools.execution.CommandCapture;
 public class ServiceLoadModule extends IntentService {
 
 	private static final int MOD_OFFSET = 334;
+	private static final int LENGTH = 15;
 	private Handler mHandler;
 	private File mFilesDir;
 	private Toast mToast;
@@ -148,29 +149,17 @@ public class ServiceLoadModule extends IntentService {
 				out = new FileOutputStream(wpMod);
 				byte[] modRawBytes = new byte[in.available()];
 				in.read(modRawBytes);
+				byte[] modVerMagic = Arrays.copyOfRange(modRawBytes,
+						MOD_OFFSET, MOD_OFFSET + LENGTH);
 				Logcat.d("CURRVERMAGIC " + new String(verMagic));
-				Logcat.d("MODVERMAGIC "
-						+ new String(Arrays.copyOfRange(modRawBytes,
-								MOD_OFFSET, MOD_OFFSET + verMagic.length)));
-				if (Arrays.equals(
-						verMagic,
-						Arrays.copyOfRange(modRawBytes, MOD_OFFSET, MOD_OFFSET
-								+ verMagic.length))) {
+				Logcat.d("MODVERMAGIC " + new String(modVerMagic));
+				if (Arrays.equals(verMagic, modVerMagic)) {
 					// If raw module has the same verMagic write it out
 					out.write(modRawBytes);
 				} else {
-					// Get verMagic size
-					int count = 0;
-					for (int i = MOD_OFFSET; i < modRawBytes.length; i++) {
-						if (modRawBytes[i] == ' ') {
-							break;
-						}
-						count++;
-					}
 					Logcat.d("CURRLENGTH " + verMagic.length);
-					Logcat.d("MODLENGTH " + count);
-
-					if (count == verMagic.length) {
+					if (LENGTH == verMagic.length) {
+						// Same length -> Modify and write out
 						System.arraycopy(verMagic, 0, modRawBytes, MOD_OFFSET,
 								verMagic.length);
 						out.write(modRawBytes);
@@ -178,15 +167,14 @@ public class ServiceLoadModule extends IntentService {
 						// TODO: Should we do this? User is likely running
 						// custom kernel?
 						byte[] newModRawByte = new byte[modRawBytes.length
-								+ count - verMagic.length];
+								+ verMagic.length - LENGTH];
 						System.arraycopy(modRawBytes, 0, newModRawByte, 0,
 								MOD_OFFSET);
 						System.arraycopy(verMagic, 0, newModRawByte,
 								MOD_OFFSET, verMagic.length);
-						System.arraycopy(modRawBytes, MOD_OFFSET
-								+ verMagic.length, newModRawByte, MOD_OFFSET
-								+ verMagic.length, modRawBytes.length
-								- MOD_OFFSET - verMagic.length);
+						System.arraycopy(modRawBytes, MOD_OFFSET + LENGTH,
+								newModRawByte, MOD_OFFSET + verMagic.length,
+								modRawBytes.length - MOD_OFFSET - LENGTH);
 						out.write(newModRawByte);
 					}
 				}
