@@ -66,13 +66,14 @@ public class ServiceLoadModule extends IntentService {
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
-		if (!Build.DEVICE.equalsIgnoreCase("m7")) {
-			showToast("Not a HTC One M7U or M7UL?", Toast.LENGTH_LONG);
-			return;
-		}
-
 		mHandler = new Handler(getMainLooper());
 		mFilesDir = getFilesDir();
+
+		// Check device
+		if (!Build.DEVICE.equalsIgnoreCase("m7")) {
+			showToast(R.string.message_device_unsupported, Toast.LENGTH_LONG);
+			return;
+		}
 
 		// Prepare busybox
 		File busybox = new File(mFilesDir, "busybox");
@@ -92,6 +93,10 @@ public class ServiceLoadModule extends IntentService {
 				"./busybox uname -r").trim();
 		String savedVerMagic = preferences
 				.getString(Constant.KEY_VER_MAGIC, "");
+		if (currVerMagic.isEmpty()) {
+			showToast(R.string.message_error_root, Toast.LENGTH_LONG);
+			return;
+		}
 		if (!savedVerMagic.equals(currVerMagic)) {
 			editor.putString(Constant.KEY_VER_MAGIC, currVerMagic);
 			if (!savedVerMagic.isEmpty()) {
