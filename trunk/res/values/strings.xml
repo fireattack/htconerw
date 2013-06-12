@@ -9,5 +9,7 @@
     <string name="message_error">Oops!!! Something went wrong. Use CatLog to get logcat for devs</string>
     <string name="message_module_load_ok">Write enabled system partition kernel module loaded OK!</string>
     <string name="message_kernel_change">Kernel changed, wp_mod.ko module is not loaded until reconfirmed</string>
+    <string name="message_device_unsupported">Your device build.prop indicated you\'re not running this app on a supported device, HTC One M7U or M7UL</string>
+    <string name="message_error_root">No ROOT access, this app requires root</string>
 
 </resources>
