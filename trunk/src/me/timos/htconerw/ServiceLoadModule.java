@@ -70,7 +70,8 @@ public class ServiceLoadModule extends IntentService {
 		mFilesDir = getFilesDir();
 
 		// Check device
-		if (!Build.DEVICE.equalsIgnoreCase("m7")) {
+		if (!Build.DEVICE.equalsIgnoreCase("m7")
+				&& !Build.DEVICE.equalsIgnoreCase("m7wls")) {
 			showToast(R.string.message_device_unsupported, Toast.LENGTH_LONG);
 			return;
 		}
