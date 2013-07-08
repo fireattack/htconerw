@@ -98,15 +98,12 @@ public class ServiceLoadModule extends IntentService {
 			showToast(R.string.message_error_root, Toast.LENGTH_LONG);
 			return;
 		}
-		if (!savedVerMagic.equals(currVerMagic)) {
-			editor.putString(Constant.KEY_VER_MAGIC, currVerMagic);
-			if (!savedVerMagic.isEmpty()) {
-				showToast(R.string.message_kernel_change, Toast.LENGTH_LONG);
-				editor.remove(Constant.KEY_LOAD_ON_BOOT);
-				editor.apply();
-				return;
-			}
+		if (!savedVerMagic.isEmpty() && !savedVerMagic.equals(currVerMagic)) {
+			showToast(R.string.message_kernel_change, Toast.LENGTH_LONG);
+			editor.remove(Constant.KEY_LOAD_ON_BOOT);
+			editor.remove(Constant.KEY_VER_MAGIC);
 			editor.apply();
+			return;
 		}
 
 		// Prepare module
@@ -121,6 +118,8 @@ public class ServiceLoadModule extends IntentService {
 		if (result.contains("wp_mod ")) {
 			Logcat.d(result);
 			showToast(R.string.message_module_load_ok, Toast.LENGTH_LONG);
+			editor.putString(Constant.KEY_VER_MAGIC, currVerMagic);
+			editor.apply();
 		} else {
 			showToast(R.string.message_error, Toast.LENGTH_LONG);
 		}
