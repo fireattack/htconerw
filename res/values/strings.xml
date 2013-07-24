@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">HTCOneRW</string>
-    <string name="info">&lt;b>WARNING:&lt;/b> All custom kernels already have this module included, &lt;b>ONLY&lt;/b> use this on &lt;b>STOCK SENSE KERNEL&lt;/b>&lt;br>&lt;br>This app contains works by flar2@xda and stericson&lt;br>&lt;br>Do you want to load flar2\'s wp_mod module to allow write to system partition on &lt;b>STOCK SENSE KERNEL&lt;/b>?</string>
+    <string name="info">&lt;b>WARNING:&lt;/b> All custom kernels already have this module included, &lt;b>ONLY&lt;/b> use this on &lt;b>STOCK HTC KERNEL&lt;/b> on &lt;b>HTC Sense or GE ROMs&lt;/b>&lt;br>&lt;br>This app contains works by flar2@xda and stericson&lt;br>&lt;br>Do you want to load flar2\'s wp_mod module to allow write to system partition on &lt;b>STOCK SENSE KERNEL&lt;/b>?</string>
     <string name="load_on_boot">Load on boot</string>
     <string name="exit">Exit</string>
     <string name="load">Load</string>

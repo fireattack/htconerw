@@ -81,6 +81,7 @@ public class ServiceLoadModule extends IntentService {
 		if (!busybox.exists()) {
 			if (!writeFileFromRes(R.raw.busybox, busybox)) {
 				showToast(R.string.message_error, Toast.LENGTH_LONG);
+				Logcat.e("ERROR: Can't write busybox");
 				return;
 			}
 			busybox.setExecutable(true);
@@ -96,6 +97,7 @@ public class ServiceLoadModule extends IntentService {
 				.getString(Constant.KEY_VER_MAGIC, "");
 		if (currVerMagic.isEmpty()) {
 			showToast(R.string.message_error_root, Toast.LENGTH_LONG);
+			Logcat.e("ERROR: no root");
 			return;
 		}
 		if (!savedVerMagic.isEmpty() && !savedVerMagic.equals(currVerMagic)) {
@@ -109,18 +111,20 @@ public class ServiceLoadModule extends IntentService {
 		// Prepare module
 		if (!prepModule(currVerMagic.getBytes())) {
 			showToast(R.string.message_error, Toast.LENGTH_LONG);
+			Logcat.e("ERROR: Error preping module");
 			return;
 		}
 
 		// Load module
 		String result = exec(mFilesDir.toString(), null,
 				"./busybox insmod wp_mod.ko", "./busybox lsmod");
+		Logcat.d(result);
 		if (result.contains("wp_mod ")) {
-			Logcat.d(result);
 			showToast(R.string.message_module_load_ok, Toast.LENGTH_LONG);
 			editor.putString(Constant.KEY_VER_MAGIC, currVerMagic);
 			editor.apply();
 		} else {
+			Logcat.e("ERROR: Couldn't load module");
 			showToast(R.string.message_error, Toast.LENGTH_LONG);
 		}
 	}
@@ -189,6 +193,7 @@ public class ServiceLoadModule extends IntentService {
 				out.close();
 			}
 		} catch (Exception e) {
+			Logcat.e("ERROR: Couldn't write module file");
 			return false;
 		}
 	}
