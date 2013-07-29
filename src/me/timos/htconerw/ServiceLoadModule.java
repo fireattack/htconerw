@@ -1,5 +1,6 @@
 package me.timos.htconerw;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -152,12 +153,18 @@ public class ServiceLoadModule extends IntentService {
 		// Modify if required and write from raw
 		InputStream in = null;
 		OutputStream out = null;
+		ByteArrayOutputStream baos = null;
 		try {
 			try {
 				in = getResources().openRawResource(R.raw.wp_mod);
 				out = new FileOutputStream(wpMod);
-				byte[] modRawBytes = new byte[in.available()];
-				in.read(modRawBytes);
+				byte[] buff = new byte[4096];
+				baos = new ByteArrayOutputStream(in.available());
+				int count;
+				while ((count = in.read(buff)) != -1) {
+					baos.write(buff, 0, count);
+				}
+				byte[] modRawBytes = baos.toByteArray();
 				byte[] modVerMagic = Arrays.copyOfRange(modRawBytes,
 						MOD_OFFSET, MOD_OFFSET + LENGTH);
 				Logcat.d("CURRVERMAGIC " + new String(verMagic));
@@ -191,6 +198,7 @@ public class ServiceLoadModule extends IntentService {
 			} finally {
 				in.close();
 				out.close();
+				baos.close();
 			}
 		} catch (Exception e) {
 			Logcat.e("ERROR: Couldn't write module file");
