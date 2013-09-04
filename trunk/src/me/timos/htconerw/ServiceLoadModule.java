@@ -1,5 +1,8 @@
 package me.timos.htconerw;
 
+import static me.timos.htconerw.Module.MOD41;
+import static me.timos.htconerw.Module.MOD43;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,8 +26,9 @@ import com.stericson.RootTools.execution.CommandCapture;
 
 public class ServiceLoadModule extends IntentService {
 
-	private static final int MOD_OFFSET = 334;
-	private static final int LENGTH = 15;
+	private int mOffset;
+	private int mResId;
+	private int mLength;
 	private Handler mHandler;
 	private File mFilesDir;
 	private Toast mToast;
@@ -69,6 +73,16 @@ public class ServiceLoadModule extends IntentService {
 	protected void onHandleIntent(Intent intent) {
 		mHandler = new Handler(getMainLooper());
 		mFilesDir = getFilesDir();
+
+		if (Build.VERSION.SDK_INT < 18) {
+			mResId = MOD41.RES_ID;
+			mOffset = MOD41.OFFSET;
+			mLength = MOD41.LENGTH;
+		} else {
+			mResId = MOD43.RES_ID;
+			mOffset = MOD43.OFFSET;
+			mLength = MOD43.LENGTH;
+		}
 
 		// Check device
 		if (!Build.DEVICE.equalsIgnoreCase("m7")
@@ -139,7 +153,7 @@ public class ServiceLoadModule extends IntentService {
 			try {
 				raf = new RandomAccessFile(wpMod, "r");
 				byte[] buffer = new byte[verMagic.length];
-				raf.seek(MOD_OFFSET);
+				raf.seek(mOffset);
 				raf.read(buffer, 0, verMagic.length);
 				if (Arrays.equals(verMagic, buffer)) {
 					return true;
@@ -156,7 +170,7 @@ public class ServiceLoadModule extends IntentService {
 		ByteArrayOutputStream baos = null;
 		try {
 			try {
-				in = getResources().openRawResource(R.raw.wp_mod);
+				in = getResources().openRawResource(mResId);
 				out = new FileOutputStream(wpMod);
 				byte[] buff = new byte[4096];
 				baos = new ByteArrayOutputStream(in.available());
@@ -165,8 +179,8 @@ public class ServiceLoadModule extends IntentService {
 					baos.write(buff, 0, count);
 				}
 				byte[] modRawBytes = baos.toByteArray();
-				byte[] modVerMagic = Arrays.copyOfRange(modRawBytes,
-						MOD_OFFSET, MOD_OFFSET + LENGTH);
+				byte[] modVerMagic = Arrays.copyOfRange(modRawBytes, mOffset,
+						mOffset + mLength);
 				Logcat.d("CURRVERMAGIC " + new String(verMagic));
 				Logcat.d("MODVERMAGIC " + new String(modVerMagic));
 				if (Arrays.equals(verMagic, modVerMagic)) {
@@ -174,23 +188,23 @@ public class ServiceLoadModule extends IntentService {
 					out.write(modRawBytes);
 				} else {
 					Logcat.d("CURRLENGTH " + verMagic.length);
-					if (LENGTH == verMagic.length) {
+					if (mLength == verMagic.length) {
 						// Same length -> Modify and write out
-						System.arraycopy(verMagic, 0, modRawBytes, MOD_OFFSET,
+						System.arraycopy(verMagic, 0, modRawBytes, mOffset,
 								verMagic.length);
 						out.write(modRawBytes);
 					} else {
 						// TODO: Should we do this? User is likely running
 						// custom kernel?
 						byte[] newModRawByte = new byte[modRawBytes.length
-								+ verMagic.length - LENGTH];
+								+ verMagic.length - mLength];
 						System.arraycopy(modRawBytes, 0, newModRawByte, 0,
-								MOD_OFFSET);
-						System.arraycopy(verMagic, 0, newModRawByte,
-								MOD_OFFSET, verMagic.length);
-						System.arraycopy(modRawBytes, MOD_OFFSET + LENGTH,
-								newModRawByte, MOD_OFFSET + verMagic.length,
-								modRawBytes.length - MOD_OFFSET - LENGTH);
+								mOffset);
+						System.arraycopy(verMagic, 0, newModRawByte, mOffset,
+								verMagic.length);
+						System.arraycopy(modRawBytes, mOffset + mLength,
+								newModRawByte, mOffset + verMagic.length,
+								modRawBytes.length - mOffset - mLength);
 						out.write(newModRawByte);
 					}
 				}
