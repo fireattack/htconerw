@@ -3,7 +3,7 @@ package me.timos.htconerw;
 public enum Module {
 	MOD41(R.raw.wp_mod_ko_41, 334, 15),
 	//
-	MOD43(R.raw.wp_mod_ko_43, 341, 16);
+	MOD43(R.raw.wp_mod_ko_43, 341, 15);
 
 	public final int RES_ID;
 	public final int OFFSET;
